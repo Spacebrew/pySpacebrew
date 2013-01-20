@@ -7,4 +7,4 @@ Be aware that there is another python package called 'websocket' that uses the s
 The other python libraries should be standard.
 
 spacebrew.py provides a SpaceBrew object which can be used to create subscribers and publishers. See spacebrew_ex.py for a simple tutorial.
-x
+
