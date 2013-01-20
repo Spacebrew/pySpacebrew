@@ -1,5 +1,5 @@
 import websocket
-import thread
+import threading
 import time
 import json
 
@@ -27,7 +27,16 @@ class SpaceBrew(object):
 	pass
 
     class Subscriber(Slot):
-	pass
+	def __init__(self, name, brewType, default = None):
+	    super(SpaceBrew.Subscriber,self).__init__(name,brewType,default)
+	    self.callbacks=[]
+	def subscribe(self, target):
+	    self.callbacks.append(target)
+	def unsubscribe(self, target):
+	    self.callbacks.remove(target)
+	def disseminate(self, value):
+	    for target in self.callbacks:
+		target(value)
 
     def __init__(self, name, description="", server="sandbox.spacebrew.cc", port=9000):
 	self.server = server
@@ -35,24 +44,24 @@ class SpaceBrew(object):
 	self.name = name
 	self.description = description
 	self.connected = False
-	self.publishers = []
-	self.subscribers = []
+	self.publishers = {}
+	self.subscribers = {}
 
     def addPublisher(self, name, brewType="string", default=None):
 	if self.connected:
 	    raise ConfigurationError(self,"Can not add a new publisher to a running SpaceBrew instance (yet).")
 	else:
-	    self.publishers.append(self.Publisher(name, brewType, default))
+	    self.publishers[name]=self.Publisher(name, brewType, default)
     
     def addSubscriber(self, name, brewType="string", default=None):
 	if self.connected:
 	    raise ConfigurationError(self,"Can not add a new subscriber to a running SpaceBrew instance (yet).")
 	else:
-	    self.subscribers.append(self.Subscriber(name, brewType, default))
+	    self.subscribers[name]=self.Subscriber(name, brewType, default)
 
     def makeConfig(self):
-	subs = map(lambda x:x.makeConfig(),self.subscribers)
-	pubs = map(lambda x:x.makeConfig(),self.publishers)
+	subs = map(lambda x:x.makeConfig(),self.subscribers.values())
+	pubs = map(lambda x:x.makeConfig(),self.publishers.values())
 	d = {'config':{
 		'name':self.name,
 		'description':self.description,
@@ -61,67 +70,76 @@ class SpaceBrew(object):
 		}}
 	return d
 
+    def on_open(self,ws):
+	print "Opening brew."
+	ws.send(json.dumps(self.makeConfig()))
 
-def sendMessage():
-	message = { "message":
-       {
-           "clientName":"spacepython",
-           "name":"coolBool",
-           "type":"boolean",
-           "value":"true"
-       }
-   	}
-   	ws.send(json.dumps(message))
+    def on_message(self,ws,message):
+	msg = json.loads(message)['message']
+	sub=self.subscribers[msg['name']]
+	sub.disseminate(msg['value'])
 
-def on_message(ws, message):
-    print message
+    def on_error(self,ws,error):
+	print "ERROR:",error
 
-def on_error(ws, error):
-    print error
+    def on_close(self,ws):
+	print "Closing brew."
 
-def on_close(ws):
-    print "### closed ###"
+    def publish(self,name,value):
+	publisher = self.publishers[name]
+	message = {'message': {
+		'clientName':self.name,
+		'name':publisher.name,
+		'type':publisher.type,
+		'value':value } }
+	self.ws.send(json.dumps(message))
 
-def on_open(ws):
-    def run(*args):
-    	myConfig = {"config":{
-    	"name":"spacepython",
-    	"description":"what what",
-    	"publish":{"messages":[
-    	{"name":"coolBool","type":"boolean","default":"1"},
-    	{"name":"sendBool","type":"boolean","default":"boolean"}]},
-    	"subscribe":{"messages":[{"name":"sbool","type":"boolean"}]}}}
-    	print myConfig 
-    	ws.send(json.dumps(myConfig))
-    	
-    	for i in range(60):
-    		time.sleep(5)
-    		sendMessage()
-    thread.start_new_thread(run, ())
+    def subscribe(self,name,target):
+	subscriber = self.subscribers[name]
+	subscriber.subscribe(target)
 
+    # Retry indicates that if the connection drops
+    # the brew should attempt to reconnect-- not yet
+    # implemented
+    def run(self,retry=False):
+	ws = websocket.WebSocketApp("ws://{0}:{1}".format(self.server,self.port),
+				    on_message = lambda ws, msg: self.on_message(ws, msg),
+				    on_error = lambda ws, err: self.on_error(ws,err),
+				    on_close = lambda ws: self.on_close(ws))
+	self.ws = ws
+	ws.on_open = lambda ws: self.on_open(ws)
+	ws.run_forever()
+
+    def close(self):
+	self.ws.close()
 
 
 
 if __name__ == "__main__":
-    brew = SpaceBrew("new brew")
+    brew = SpaceBrew("new brew",server="localhost")
     brew.addPublisher("pub")
     brew.addSubscriber("sub")
-    print brew.makeConfig()
-    print json.dumps(brew.makeConfig())
-    myConfig = {"config":{
-	    "name":"spacepython",
-	    "description":"what what",
-	    "publish":{"messages":[
-		    {"name":"coolBool","type":"boolean","default":"1"},
-		    {"name":"sendBool","type":"boolean","default":"boolean"}]},
-	    "subscribe":{"messages":[{"name":"sbool","type":"boolean"}]}}}
-    print myConfig 
-    print json.dumps(myConfig)
-    websocket.enableTrace(True)
-    ws = websocket.WebSocketApp("ws://localhost:9000",
-                                on_message = on_message,
-                                on_error = on_error,
-                                on_close = on_close)
-    ws.on_open = on_open
-
-    ws.run_forever()
+    brew2 = SpaceBrew("brew two",server="localhost")
+    brew2.addSubscriber("tub")
+    def onmsg(value):
+	print "Got",value
+    brew2.subscribe("tub",onmsg)
+    def run(*args):
+	brew.run()
+    brewThread = threading.Thread(target=run)
+    brewThread.start()
+    def run2(*args):
+	brew2.run()
+    brewThread2 = threading.Thread(target=run2)
+    brewThread2.start()
+    try:
+	while True:
+	    time.sleep(3)
+	    brew.publish('pub','rub')
+    except (KeyboardInterrupt, SystemExit) as e:
+	print e
+	brew.close()
+	brewThread.join()
+	brew2.close()
+	brewThread2.join()
+    
