@@ -16,7 +16,7 @@ brew2.addSubscriber("sub")
 
 # For any subscriber, you can define any number of functions
 # that will get called with the sent value when a message arrives.
-# Here's a simple example of a function that recieves a value
+# Here's a simple example of a function that recieves a value.
 def example(value):
     print "Got",value
 # We call "subscribe" to associate a function with a subscriber.
