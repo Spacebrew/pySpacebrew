@@ -1,6 +1,5 @@
 import websocket
 import threading
-import time
 import json
 
 
@@ -110,36 +109,21 @@ class SpaceBrew(object):
 	ws.on_open = lambda ws: self.on_open(ws)
 	ws.run_forever()
 
-    def close(self):
+    def start(self):
+        def run(*args):
+            self.run()
+        self.thread = threading.Thread(target=run)
+        self.thread.start()
+
+    def stop(self):
 	self.ws.close()
+        self.thread.join()
 
 
 
 if __name__ == "__main__":
-    brew = SpaceBrew("new brew",server="localhost")
-    brew.addPublisher("pub")
-    brew.addSubscriber("sub")
-    brew2 = SpaceBrew("brew two",server="localhost")
-    brew2.addSubscriber("tub")
-    def onmsg(value):
-	print "Got",value
-    brew2.subscribe("tub",onmsg)
-    def run(*args):
-	brew.run()
-    brewThread = threading.Thread(target=run)
-    brewThread.start()
-    def run2(*args):
-	brew2.run()
-    brewThread2 = threading.Thread(target=run2)
-    brewThread2.start()
-    try:
-	while True:
-	    time.sleep(3)
-	    brew.publish('pub','rub')
-    except (KeyboardInterrupt, SystemExit) as e:
-	print e
-	brew.close()
-	brewThread.join()
-	brew2.close()
-	brewThread2.join()
+    print """
+This is the SpaceBrew module. 
+See spacebrew_ex.py for usage examples.
+"""
     
