@@ -28,7 +28,7 @@ currentfeed = defaultfeed
 # Construct a brew by passing in its name and the server you
 # want to connect to.
 brew1 = SpaceBrew("rssfeeder2",server="sandbox.spacebrew.cc")
-# This brew will publish a string called "pub".
+# This brew will publish a string called "titles" containing the titles from the rss feed.
 brew1.addPublisher("titles")
 brew1.addSubscriber("feedurl")
 
@@ -38,7 +38,6 @@ brew1.addSubscriber("feedurl")
 def updateFeed(value):
     print "Changing feed to: ",value
     d = feedparser.parse(value)
-    #print d #['feed']['title']
     currentfeed = value
     for item in d.entries:
         title = item.title
@@ -64,10 +63,6 @@ try:
         if (currentplace >= feedlength-1): 
             currentplace = 0;
             updateFeed(currentfeed)
-        
-        # The publish method sends a value from the specified
-        # publisher.
-        # brew1.publish('feedurl','http://en.wikipedia.org/w/index.php?title=Special:RecentChanges&feed=atom')
 except (KeyboardInterrupt, SystemExit) as e:
     # Calling stop on a brew disconnects it and waits for its
     # associated thread to finish.
