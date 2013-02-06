@@ -20,14 +20,15 @@ updatefeed = True
 currentplace = 0
 
 # This feed will be loaded by default if no one sends a new url string
-defaultfeed = "http://en.wikipedia.org/w/index.php?title=Special:RecentChanges&feed=atom"
+defaultfeed = "http://interactivestuff.tumblr.com/rss"
 
 # We will always pay attention to the currentfeed, so fill that with the default for now
 currentfeed = defaultfeed
 
 # Construct a brew by passing in its name and the server you
 # want to connect to.
-brew1 = SpaceBrew("rssfeeder2",server="sandbox.spacebrew.cc")
+#brew1 = SpaceBrew("rssfeeder2",server="sandbox.spacebrew.cc")
+brew1 = SpaceBrew("rssfeeder2", server="localhost")
 # This brew will publish a string called "titles" containing the titles from the rss feed.
 brew1.addPublisher("titles")
 brew1.addSubscriber("feedurl")
@@ -41,7 +42,7 @@ def updateFeed(value):
     currentfeed = value
     for item in d.entries:
         title = item.title
-        feedDeque.append([title])
+        feedDeque.append(title)
 
 # We call "subscribe" to associate a function with a subscriber.
 brew1.subscribe("feedurl",updateFeed)
