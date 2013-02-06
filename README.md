@@ -8,3 +8,7 @@ The other python libraries should be standard.
 
 spacebrew.py provides a SpaceBrew object which can be used to create subscribers and publishers. See spacebrew_ex.py for a simple tutorial.
 
+
+
+This also requires feedparser library
+It can be installed using 'pip install feedparser'
