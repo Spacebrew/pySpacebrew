@@ -27,8 +27,7 @@ currentfeed = defaultfeed
 
 # Construct a brew by passing in its name and the server you
 # want to connect to.
-#brew1 = SpaceBrew("rssfeeder2",server="sandbox.spacebrew.cc")
-brew1 = SpaceBrew("rssfeeder2", server="localhost")
+brew1 = SpaceBrew("rssfeeder2",server="sandbox.spacebrew.cc")
 # This brew will publish a string called "titles" containing the titles from the rss feed.
 brew1.addPublisher("titles")
 brew1.addSubscriber("feedurl")
