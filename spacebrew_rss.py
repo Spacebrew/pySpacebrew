@@ -11,7 +11,7 @@ updateTime = 3
 feedlength = 50
 
 # Using a deque and settting it's maximum length - http://docs.python.org/2/library/collections.html#deque-objects
-feedDeque = deque(["first"],feedlength)
+feedDeque = deque(maxlen=feedlength)
 
 # Set the feed to the default unless you receive a string for a new url
 updatefeed = True
@@ -28,8 +28,10 @@ currentfeed = defaultfeed
 # Construct a brew by passing in its name and the server you
 # want to connect to.
 brew1 = SpaceBrew("rssfeeder2",server="sandbox.spacebrew.cc")
+pubs = ["title", "summary", "source", "author", "content", "link", "tags"]
 # This brew will publish a string called "titles" containing the titles from the rss feed.
-brew1.addPublisher("titles")
+for pub in pubs:
+    brew1.addPublisher(pub)
 brew1.addSubscriber("feedurl")
 
 # For any subscriber, you can define any number of functions
@@ -39,9 +41,15 @@ def updateFeed(value):
     print "Changing feed to: ",value
     d = feedparser.parse(value)
     currentfeed = value
-    for item in d.entries:
-        title = item.title
-        feedDeque.append(title)
+    feedDeque.extend(d.entries)
+#    for item in d.entries:
+#	i = {}
+#        for pub in pubs:
+#            try:
+#                i[pub] = getattr(item, pub)
+#            except:
+#                i[pub] = ''
+#        feedDeque.append(i)
 
 # We call "subscribe" to associate a function with a subscriber.
 brew1.subscribe("feedurl",updateFeed)
@@ -58,11 +66,14 @@ try:
             if (currentfeed == defaultfeed):
                 updateFeed(defaultfeed)
 
-        brew1.publish('titles',feedDeque[currentplace])
-        currentplace+=1
-        if (currentplace >= feedlength-1): 
-            currentplace = 0;
+	if len(feedDeque) <= 0:
             updateFeed(currentfeed)
+        item = feedDeque.popleft()
+        for pub in pubs:
+            try:
+                brew1.publish(pub, getattr(item, pub))
+            except:
+                pass
 except (KeyboardInterrupt, SystemExit) as e:
     # Calling stop on a brew disconnects it and waits for its
     # associated thread to finish.
