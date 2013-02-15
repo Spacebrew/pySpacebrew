@@ -1,7 +1,7 @@
 import websocket
 import threading
 import json
-
+import logging
 
 class SpaceBrew(object):
 
@@ -72,7 +72,7 @@ class SpaceBrew(object):
 		return d
 
 	def on_open(self,ws):
-		print "Opening brew."
+		logging.getLogger().info("Opening brew.")
 		ws.send(json.dumps(self.makeConfig()))
 
 	def on_message(self,ws,message):
@@ -81,10 +81,10 @@ class SpaceBrew(object):
 		sub.disseminate(msg['value'])
 
 	def on_error(self,ws,error):
-		print "ERROR:",error
+		logging.getLogger().error("ERROR: {0}".format(error))
 
 	def on_close(self,ws):
-		print "Closing brew."
+		logging.getLogger().info("Closing brew.")
 
 	def publish(self,name,value):
 		publisher = self.publishers[name]
@@ -117,6 +117,7 @@ class SpaceBrew(object):
 			self.run()
 		self.thread = threading.Thread(target=run)
 		self.thread.start()
+
 
 	def stop(self):
 		if self.ws is not None:
