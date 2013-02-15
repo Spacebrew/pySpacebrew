@@ -1,7 +1,7 @@
 #!/usr/bin/python
 import time
 
-from spacebrew import SpaceBrew
+from spacebrewInterface.spacebrew import SpaceBrew
 
 # Construct a brew by passing in its name and the server you
 # want to connect to.

@@ -2,7 +2,7 @@
 import time
 import feedparser
 from collections import deque
-from spacebrew import SpaceBrew
+from spacebrewInterface.spacebrew import SpaceBrew
 
 # time in second before sending another entry in the feed
 updateTime = 3
@@ -27,7 +27,7 @@ currentfeed = defaultfeed
 
 # Construct a brew by passing in its name and the server you
 # want to connect to.
-brew1 = SpaceBrew("rssfeeder2",server="sandbox.spacebrew.cc")
+brew1 = SpaceBrew("rssfeeder2",server="localhost")
 pubs = ["title", "summary", "source", "author", "content", "link", "tags"]
 # This brew will publish a string called "titles" containing the titles from the rss feed.
 for pub in pubs:

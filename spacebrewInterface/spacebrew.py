@@ -72,7 +72,7 @@ class SpaceBrew(object):
 		return d
 
 	def on_open(self,ws):
-		logging.getLogger().info("Opening brew.")
+		logging.info("Opening brew.")
 		ws.send(json.dumps(self.makeConfig()))
 
 	def on_message(self,ws,message):
@@ -81,10 +81,10 @@ class SpaceBrew(object):
 		sub.disseminate(msg['value'])
 
 	def on_error(self,ws,error):
-		logging.getLogger().error("ERROR: {0}".format(error))
+		logging.error("ERROR: {0}".format(error))
 
 	def on_close(self,ws):
-		logging.getLogger().info("Closing brew.")
+		logging.info("Closing brew.")
 
 	def publish(self,name,value):
 		publisher = self.publishers[name]
