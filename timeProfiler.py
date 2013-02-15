@@ -12,4 +12,4 @@ class TimeProfiler(object):
 	def end(self, name):
 		now = datetime.datetime.now()
 		delta = self.maps[name] - now
-		self.printRoutine("{0}\t took {1} ms to run".format(name, delta.microseconds/1000))
+		self.printRoutine("{0}\t took {1} seconds to run".format(name, delta.total_seconds()))
