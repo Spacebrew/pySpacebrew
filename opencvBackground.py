@@ -43,7 +43,7 @@ parser.add_argument('-c', '--client',
 					action='store_true')
 
 parser.add_argument('-v', '--visual',
-					help="Show all 4 sensor windows, sensor mode only",
+					help="Show sensor windows, affects sensor mode only",
 					action='store_true')
 
 parser.add_argument('-p', '--pixels',
@@ -54,7 +54,6 @@ parser.add_argument('-p', '--pixels',
 
 parser.add_argument('-s', '--server',
 					help="Specify the spacebrew server if other than local",
-					nargs=1,
 					type=str,
 					metavar='localhost')
 
@@ -208,8 +207,8 @@ def sensorSetup():
 
 	sbLink.start()
 
-	cv.NamedWindow("Camera", cv.CV_WINDOW_AUTOSIZE)
 	if args.visual:
+		cv.NamedWindow("Camera", cv.CV_WINDOW_AUTOSIZE)
 		cv.NamedWindow("Accumulator", cv.CV_WINDOW_AUTOSIZE)
 		cv.NamedWindow("Difference", cv.CV_WINDOW_AUTOSIZE)
 		cv.NamedWindow("Threshold", cv.CV_WINDOW_AUTOSIZE)
@@ -217,17 +216,13 @@ def sensorSetup():
 
 		configureSettingsWindow()
 
-		textOutput = cv.CreateImage( (WIDTH * 2, 100), cv.IPL_DEPTH_8U, 3)
-
-
-	cv.MoveWindow("Camera", 		0, 			0)
-	if args.visual:
+		cv.MoveWindow("Camera", 		0, 			0)
 		cv.MoveWindow("Accumulator", 	WIDTH + 10, 0)
 		cv.MoveWindow("Difference", 	0, 			HEIGHT + 50)
 		cv.MoveWindow("Threshold", 		WIDTH + 10, HEIGHT + 50)
 		cv.MoveWindow("Settings",       0,          HEIGHT * 2 + 100)
 
-	cv.SetMouseCallback("Camera", mouseCallback, None)
+		cv.SetMouseCallback("Camera", mouseCallback, None)
 
 
 def handleRectangleDraw():
@@ -401,9 +396,8 @@ def sensorRepeat():
 
 	handleRectangleDraw()
 
-	cv.ShowImage("Camera", frame)
-
 	if args.visual:
+		cv.ShowImage("Camera", frame)
 		cv.ShowImage("Accumulator", accumulatorShow8u)
 		cv.ShowImage("Difference", differenceShow8u)
 		cv.ShowImage("Threshold", threshold8u)
