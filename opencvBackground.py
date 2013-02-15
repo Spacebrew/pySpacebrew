@@ -11,6 +11,7 @@ import logging
 
 from spacebrewLink import SpacebrewLink
 
+
 client = False
 
 SECONDS_PER_UPDATE = 1
@@ -61,6 +62,10 @@ parser.add_argument('-x', '--xoffset',
 					help="Start all windows to the right by X pixels",
 					type=int,
 					metavar=600)
+
+parser.add_argument('--profile',
+					help="Start app using cProfiler",
+					action='store_true')
 
 parser.add_argument('-l', '--logging',
 					type=str,
@@ -159,7 +164,7 @@ def configureSettingsWindow():
 def moveClientWindows():
 
 	o=0
-	print args
+	#print args
 	if args.xoffset:
 		o = args.xoffset		
 
@@ -433,45 +438,58 @@ def sensorRepeat():
 		lastSend = time.mktime(time.gmtime())
 
 
-clean = False
 
-if args.client:
-	clientSetup()
-else:
-	sensorSetup()
 
-try:
-	while True:
-		c = cv.WaitKey(100)
-		# 120 == 'x'
-		if c == 120:
-			break
-		#time.sleep no work
-		#time.sleep(int(sys.argv[1]))
-		if args.client:
-			clientRepeat()
-		else:
-			sensorRepeat()
-	
-	cv.DestroyAllWindows()
-	if capture:
-		del(capture)
-	sbLink.stop()
+def main():
+	global sbLink
+	global capture
 
-	clean = True
+	clean = False
 
-except (KeyboardInterrupt, SystemExit) as e:
-	logging.info("Got keyboard interrupt")
-	if not clean:
-		cv.DestroyAllWindows()
-		if capture: 
-			del(capture)
-		sbLink.stop()
-except Exception as e:
-	if not clean:
+	if args.client:
+		clientSetup()
+	else:
+		sensorSetup()
+
+	try:
+		while True:
+			c = cv.WaitKey(100)
+			# 120 == 'x'
+			if c == 120:
+				break
+			#time.sleep no work
+			#time.sleep(int(sys.argv[1]))
+			if args.client:
+				clientRepeat()
+			else:
+				sensorRepeat()
+		
 		cv.DestroyAllWindows()
 		if capture:
 			del(capture)
 		sbLink.stop()
-	raise
 
+		clean = True
+
+	except (KeyboardInterrupt, SystemExit) as e:
+		logging.info("Got keyboard interrupt")
+		if not clean:
+			cv.DestroyAllWindows()
+			if capture: 
+				del(capture)
+			sbLink.stop()
+	except Exception as e:
+		if not clean:
+			cv.DestroyAllWindows()
+			if capture:
+				del(capture)
+			sbLink.stop()
+		raise
+
+
+if __name__ == '__main__':
+	if args.profile:
+		import cProfile
+		cProfile.run('main()')
+	else:
+	    main()
