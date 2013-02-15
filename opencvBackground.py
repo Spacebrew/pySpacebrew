@@ -419,6 +419,8 @@ def sensorRepeat():
 	if lastSend + SECONDS_PER_UPDATE < time.mktime(time.gmtime()):
 		# update images
 
+		st = time.mktime(time.gmtime())
+
 		frameData = {}
 		frameData["WIDTH"] = WIDTH
 		frameData["HEIGHT"] = HEIGHT
@@ -431,7 +433,13 @@ def sensorRepeat():
  		frameData["difference"] = differenceShow8u.tostring()
  		frameData["threshold"] = threshold8u.tostring()
 
+		
  		pickledFrames = pickle.dumps(frameData)
+
+ 		et = time.mktime(time.gmtime())
+
+ 		if args.profile:
+ 			logging.debug("Took {0} seconds to broadcast frames".format(et-st))
 
 		sbLink.setFrames(pickledFrames)
 
