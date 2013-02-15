@@ -10,7 +10,7 @@ import copy
 import logging
 
 from spacebrewLink import SpacebrewLink
-
+from timeProfiler import TimeProfiler
 
 client = False
 
@@ -82,6 +82,7 @@ if args.pixels:
 
 if args.logging:
 	logging.getLogger().setLevel(args.logging)
+	logging.info("Set logging level to {0}".format(args.logging))
 else:
 	logging.getLogger().setLevel("INFO")
 
@@ -89,6 +90,9 @@ if args.server:
 	sbLink = SpacebrewLink(args.name, args.server)
 else:
 	sbLink = SpacebrewLink(args.name)
+
+
+tp = TimeProfiler(logging.debug)
 
 
 def mouseCallback(event, x, y, flags, param):
@@ -340,6 +344,7 @@ def sensorRepeat():
 	global frame
 	global rectangle
 
+	tp.start("sensorRepeat")
 
 	frame = cv.QueryFrame(capture)
 	if frame is None:
@@ -445,6 +450,7 @@ def sensorRepeat():
 
 		lastSend = time.mktime(time.gmtime())
 
+	tp.end("sensorRepeat")
 
 
 

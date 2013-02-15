@@ -1,1 +1,1 @@
-__all__ = ['opencvBackground', 'spacebrewLink', 'spacebrewLinkTest.py', 'spacebrew_ex', 'spacebrew_rss']
+__all__ = ['opencvBackground', 'spacebrewLink', 'spacebrewLinkTest', 'spacebrew_ex', 'spacebrew_rss', 'timeProfiler']
