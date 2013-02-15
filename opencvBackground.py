@@ -337,6 +337,11 @@ def sensorRepeat():
 
 
 	frame = cv.QueryFrame(capture)
+	if frame is None:
+		logging.error("QueryFrame returned a None object")
+		return
+
+
 	frame32f = None
 
 	# handle depth conversion if necessary
