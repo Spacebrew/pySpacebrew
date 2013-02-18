@@ -80,7 +80,7 @@ parser.add_argument('-l', '--logging',
 					choices=['DEBUG', 'WARN', 'INFO'])
 
 parser.add_argument('-i', '--interval',
-					help='Seconds between sending frames'
+					help='Seconds between sending frames',
 					type=int,
 					default=5)
 
