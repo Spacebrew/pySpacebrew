@@ -69,6 +69,7 @@ parser.add_argument('-x', '--xoffset',
 parser.add_argument('-z', '--zipLevel',
 					help="Specify zlip compression level for frames. 0 = none, 9 = max.",
 					type=int,
+					default=6,
 					choices=range(0,10))
 
 parser.add_argument('--profile',
