@@ -9,6 +9,7 @@ import pickle
 import copy
 import logging
 import zlib
+import base64
 
 from spacebrewLink import SpacebrewLink
 from timeProfiler import TimeProfiler
@@ -66,9 +67,8 @@ parser.add_argument('-x', '--xoffset',
 					metavar=600)
 
 parser.add_argument('-z', '--zipLevel',
-					help="Specify zlip compression level for frames. 0 = none, 9 = max",
+					help="Specify zlip compression level for frames. 0 = none, 9 = max.",
 					type=int,
-					default=6,
 					choices=range(0,10))
 
 parser.add_argument('--profile',
@@ -78,8 +78,7 @@ parser.add_argument('--profile',
 parser.add_argument('-l', '--logging',
 					type=str,
 					help="Set the logging level",
-					choices=['DEBUG', 'WARN', 'INFO'],
-					metavar="DEBUG, WARN, INFO")
+					choices=['DEBUG', 'WARN', 'INFO'])
 
 
 args = parser.parse_args()
@@ -303,8 +302,8 @@ def clientRepeat():
 		# mark frames as read
 		sbLink.framesRead()
 
-		uncompressed = zlib.decompress(sbLink.frames())
-		frameData = pickle.loads(uncompressed)
+		frameData = pickle.loads(sbLink.frames())
+
 		
 		if frameData["WIDTH"] != WIDTH or frameData["HEIGHT"] != HEIGHT:
 			WIDTH = frameData["WIDTH"]
@@ -332,15 +331,20 @@ def clientRepeat():
 
  	if frameData is not None:
 
- 		frameData = pickle.loads(uncompressed)
+ 		# TODO optimize this
+ 		frameData = pickle.loads(sbLink.frames())
 
-		cv.SetData(frame, copy.deepcopy(frameData["frame"]))
-		cv.SetData(accumulatorShow8u, frameData["accumulator"])
-		cv.SetData(differenceShow8u, frameData["difference"])
-		cv.SetData(threshold8u, frameData["threshold"])
+ 		if frameData["compressed"]:
+			cv.SetData(frame, zlib.decompress(frameData["frame"]))
+			cv.SetData(accumulatorShow8u, zlib.decompress(frameData["accumulator"]))
+			cv.SetData(differenceShow8u, zlib.decompress(frameData["difference"]))
+			cv.SetData(threshold8u, zlib.decompress(frameData["threshold"]))
+		else:
+			cv.SetData(frame, copy.deepcopy(frameData["frame"]))
+			cv.SetData(accumulatorShow8u, frameData["accumulator"])
+			cv.SetData(differenceShow8u, frameData["difference"])
+			cv.SetData(threshold8u, frameData["threshold"])
 
-
-		# TODO figure out why there is a quirk when drawing the square
 		handleRectangleDraw()
 
 		cv.ShowImage("Camera", frame)
@@ -446,23 +450,35 @@ def sensorRepeat():
 		frameData["learnRate"] = sbLink.learnRate()
  		frameData["constantMessaging"] = sbLink.constantMessaging()		
  		frameData["percentageFill"] = sbLink.percentageFill()
- 		frameData["frame"] = frame.tostring()
- 		frameData["accumulator"] = accumulatorShow8u.tostring()
- 		frameData["difference"] = differenceShow8u.tostring()
- 		frameData["threshold"] = threshold8u.tostring()
+
+		if args.zipLevel:
+
+			tp.start("CompressFrames")
+
+	 		frameData["compressed"] = True
+	 		frameData["frame"] = zlib.compress(frame.tostring(), args.zipLevel)
+ 			frameData["accumulator"] = zlib.compress(accumulatorShow8u.tostring(), args.zipLevel)
+ 			frameData["difference"] = zlib.compress(differenceShow8u.tostring(), args.zipLevel)
+ 			frameData["threshold"] = zlib.compress(threshold8u.tostring(), args.zipLevel)
+ 			
+ 			tp.end("CompressFrames")
+
+ 		else:
+
+	 		frameData["compressed"] = False
+		 	frameData["frame"] = frame.tostring()
+	 		frameData["accumulator"] = accumulatorShow8u.tostring()
+	 		frameData["difference"] = differenceShow8u.tostring()
+	 		frameData["threshold"] = threshold8u.tostring()
 
 		tp.end("PrepareFrames")
 
 		tp.start("PickleFrames")
  		pickledFrames = pickle.dumps(frameData)
-		tp.end("PickleFrames")
-
-		tp.start("CompressFrames")
- 		compressedFrames = zlib.compress(pickledFrames, args.zipLevel)
- 		tp.end("CompressFrames")
+		tp.end("PickleFrames")	 		
 
 		tp.start("SendFrames")
-		sbLink.setFrames(compressedFrames)
+		sbLink.setFrames(pickledFrames)
 		tp.end("SendFrames")
 
 		lastSend = time.mktime(time.gmtime())
