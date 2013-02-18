@@ -16,8 +16,6 @@ from timeProfiler import TimeProfiler
 
 client = False
 
-SECONDS_PER_UPDATE = 1
-
 
 WIDTH = 240
 HEIGHT = 135
@@ -80,6 +78,11 @@ parser.add_argument('-l', '--logging',
 					type=str,
 					help="Set the logging level",
 					choices=['DEBUG', 'WARN', 'INFO'])
+
+parser.add_argument('-i', '--interval',
+					help='Seconds between sending frames'
+					type=int,
+					default=5)
 
 
 args = parser.parse_args()
@@ -439,7 +442,7 @@ def sensorRepeat():
 		updateSettingsValues()
 
 	
-	if lastSend + SECONDS_PER_UPDATE < time.mktime(time.gmtime()):
+	if lastSend + args.interval < time.mktime(time.gmtime()):
 		# update images
 
 		tp.start("PrepareFrames")
