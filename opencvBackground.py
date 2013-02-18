@@ -168,7 +168,7 @@ def updateSettingsValues():
 
 
 def configureSettingsWindow():
-	cv.ResizeWindow("Settings", WIDTH * 2, 50)
+	#cv.ResizeWindow("Settings", WIDTH * 2, 100)
 
 	cv.CreateTrackbar("ThresholdCutoff", 	"Settings", sbLink.thresholdCutoff(), 	255, 	sbLink.setThresholdCutoff )
 	cv.CreateTrackbar("LearnRate", 		 	"Settings", sbLink.learnRate(), 		100, 	sbLink.setLearnRate )
@@ -303,7 +303,7 @@ def clientRepeat():
 		# mark frames as read
 		sbLink.framesRead()
 
-		frameData = pickle.loads(sbLink.frames())
+		frameData = pickle.loads(base64.b64decode(sbLink.frames()))
 
 		
 		if frameData["WIDTH"] != WIDTH or frameData["HEIGHT"] != HEIGHT:
@@ -333,7 +333,7 @@ def clientRepeat():
  	if frameData is not None:
 
  		# TODO optimize this
- 		frameData = pickle.loads(sbLink.frames())
+ 		frameData = pickle.loads(base64.b64decode(sbLink.frames()))
 
  		if frameData["compressed"]:
 			cv.SetData(frame, zlib.decompress(frameData["frame"]))
@@ -475,7 +475,7 @@ def sensorRepeat():
 		tp.end("PrepareFrames")
 
 		tp.start("PickleFrames")
- 		pickledFrames = pickle.dumps(frameData)
+ 		pickledFrames = base64.b64encode(pickle.dumps(frameData))
 		tp.end("PickleFrames")	 		
 
 		tp.start("SendFrames")
