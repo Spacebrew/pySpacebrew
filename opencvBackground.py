@@ -8,6 +8,7 @@ import argparse
 import pickle
 import copy
 import logging
+import zlib
 
 from spacebrewLink import SpacebrewLink
 from timeProfiler import TimeProfiler
@@ -32,6 +33,7 @@ state = None
 rectangle = None
 tempRectangle = None
 frameData = None
+uncompressed = None
 
 parser = argparse.ArgumentParser(description='Python based Region of Interest ROI sensor, RPI tested!')
 parser.add_argument('name', 
@@ -63,6 +65,12 @@ parser.add_argument('-x', '--xoffset',
 					type=int,
 					metavar=600)
 
+parser.add_argument('-z', '--zipLevel',
+					help="Specify zlip compression level for frames. 0 = none, 9 = max",
+					type=int,
+					default=6,
+					choices=range(0,10))
+
 parser.add_argument('--profile',
 					help="Start app using cProfiler",
 					action='store_true')
@@ -93,6 +101,9 @@ else:
 
 
 tp = TimeProfiler(logging.debug)
+
+if not args.profile:
+	tp.disable()
 
 
 def mouseCallback(event, x, y, flags, param):
@@ -286,12 +297,14 @@ def clientRepeat():
 	global differenceShow8u
 	global threshold8u
 	global frameData
+	global uncompressed
 
 	if sbLink.framesRefreshed():
 		# mark frames as read
 		sbLink.framesRead()
 
-		frameData = pickle.loads(sbLink.frames())
+		uncompressed = zlib.decompress(sbLink.frames())
+		frameData = pickle.loads(uncompressed)
 		
 		if frameData["WIDTH"] != WIDTH or frameData["HEIGHT"] != HEIGHT:
 			WIDTH = frameData["WIDTH"]
@@ -319,7 +332,7 @@ def clientRepeat():
 
  	if frameData is not None:
 
- 		frameData = pickle.loads(sbLink.frames())
+ 		frameData = pickle.loads(uncompressed)
 
 		cv.SetData(frame, copy.deepcopy(frameData["frame"]))
 		cv.SetData(accumulatorShow8u, frameData["accumulator"])
@@ -424,7 +437,7 @@ def sensorRepeat():
 	if lastSend + SECONDS_PER_UPDATE < time.mktime(time.gmtime()):
 		# update images
 
-		st = time.mktime(time.gmtime())
+		tp.start("PrepareFrames")
 
 		frameData = {}
 		frameData["WIDTH"] = WIDTH
@@ -438,15 +451,19 @@ def sensorRepeat():
  		frameData["difference"] = differenceShow8u.tostring()
  		frameData["threshold"] = threshold8u.tostring()
 
-		
+		tp.end("PrepareFrames")
+
+		tp.start("PickleFrames")
  		pickledFrames = pickle.dumps(frameData)
+		tp.end("PickleFrames")
 
- 		et = time.mktime(time.gmtime())
+		tp.start("CompressFrames")
+ 		compressedFrames = zlib.compress(pickledFrames, args.zipLevel)
+ 		tp.end("CompressFrames")
 
- 		if args.profile:
- 			logging.debug("Took {0} seconds to broadcast frames".format(et-st))
-
-		sbLink.setFrames(pickledFrames)
+		tp.start("SendFrames")
+		sbLink.setFrames(compressedFrames)
+		tp.end("SendFrames")
 
 		lastSend = time.mktime(time.gmtime())
 
