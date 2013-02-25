@@ -19,6 +19,7 @@ client = False
 
 WIDTH = 240
 HEIGHT = 135
+
 arch = platform.architecture()
 if arch[0] == '32bit' and arch[1] == 'ELF' :
 	# assume rpi, drop the wide format support
@@ -65,7 +66,7 @@ parser.add_argument('-x', '--xoffset',
 					metavar=600)
 
 parser.add_argument('-z', '--zipLevel',
-					help="Specify zlip compression level for frames. 0 = none, 9 = max.",
+					help="Specify zlip compression level for frames. 0=none, 9=max.  Default 6",
 					type=int,
 					default=6,
 					choices=range(0,10))
@@ -141,7 +142,8 @@ def mouseCallback(event, x, y, flags, param):
 	elif event == cv.CV_EVENT_MOUSEMOVE:
 		if state == "DOWN" :
 			tempRectangle[2] = x
-			tempRectangle[3] = y		
+			tempRectangle[3] = y
+			#print "win ", x, y
 
 
 if args.client:
@@ -171,7 +173,7 @@ def updateSettingsValues():
 
 
 def configureSettingsWindow():
-	#cv.ResizeWindow("Settings", WIDTH * 2, 100)
+	cv.ResizeWindow("Settings", WIDTH * 2, 75)
 
 	cv.CreateTrackbar("ThresholdCutoff", 	"Settings", sbLink.thresholdCutoff(), 	255, 	sbLink.setThresholdCutoff )
 	cv.CreateTrackbar("LearnRate", 		 	"Settings", sbLink.learnRate(), 		100, 	sbLink.setLearnRate )
@@ -315,8 +317,6 @@ def clientRepeat():
 
 			# move client windows
 			moveClientWindows()
-			# resize the settings window
-			cv.ResizeWindow("Settings", WIDTH * 2, 50)
 
 			frame =				cv.CreateImage( (WIDTH, HEIGHT), cv.IPL_DEPTH_8U, 3 ) # RGB
 			accumulatorShow8u = cv.CreateImage( (WIDTH, HEIGHT), cv.IPL_DEPTH_8U, 1 )
@@ -371,6 +371,9 @@ def sensorRepeat():
 	if frame is None:
 		logging.error("QueryFrame returned a None object")
 		return
+
+	#print "Frame info: "
+	#print frame.width, frame.height
 
 
 	frame32f = None
@@ -428,6 +431,8 @@ def sensorRepeat():
 	if sbLink.frameROIRefreshed():
 		sbLink.frameROIRead()
 		rectangle = pickle.loads(sbLink.frameROI())
+		# reset lastSend so that the triangle is sent over immediately
+		lastSend = 0
 
 
 	handleRectangleDraw()
@@ -494,8 +499,22 @@ def sensorRepeat():
 def main():
 	global sbLink
 	global capture
+	global WIDTH
+	global HEIGHT
 
 	clean = False
+
+
+	# sometimes we don't get back the same image size we request (camera dependent)
+	# so let's get one frame and adjust as needed
+
+	frame = None
+	while frame is None:
+		frame = cv.QueryFrame(capture)
+		c = cv.WaitKey(100)
+
+	WIDTH = frame.width
+	HEIGHT = frame.height
 
 	if args.client:
 		clientSetup()
