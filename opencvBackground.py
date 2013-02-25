@@ -153,6 +153,21 @@ else:
 	cv.SetCaptureProperty( capture, cv.CV_CAP_PROP_FRAME_WIDTH, WIDTH )
 	cv.SetCaptureProperty( capture, cv.CV_CAP_PROP_FRAME_HEIGHT, HEIGHT )
 
+# sometimes we don't get back the same image size we request (camera dependent)
+# so let's get one frame and adjust as needed
+
+frame = None
+while frame is None:
+	frame = cv.QueryFrame(capture)
+	c = cv.WaitKey(100)
+
+if WIDTH != frame.width or HEIGHT != frame.height:
+	WIDTH = frame.width
+	HEIGHT = frame.height
+
+	string = "Camera returned frame size {0},{1}.  Adjusted accordingly.".format(WIDTH, HEIGHT)
+	logging.info(string)
+
 
 accumulator32f =    cv.CreateImage( (WIDTH, HEIGHT), cv.IPL_DEPTH_32F, 1 )
 grayBackground32f = cv.CreateImage( (WIDTH, HEIGHT), cv.IPL_DEPTH_32F, 1 )
@@ -367,6 +382,7 @@ def sensorRepeat():
 
 	tp.start("sensorRepeat")
 
+
 	frame = cv.QueryFrame(capture)
 	if frame is None:
 		logging.error("QueryFrame returned a None object")
@@ -503,18 +519,6 @@ def main():
 	global HEIGHT
 
 	clean = False
-
-
-	# sometimes we don't get back the same image size we request (camera dependent)
-	# so let's get one frame and adjust as needed
-
-	frame = None
-	while frame is None:
-		frame = cv.QueryFrame(capture)
-		c = cv.WaitKey(100)
-
-	WIDTH = frame.width
-	HEIGHT = frame.height
 
 	if args.client:
 		clientSetup()
