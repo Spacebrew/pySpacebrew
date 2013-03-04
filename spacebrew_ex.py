@@ -35,6 +35,7 @@ try:
         # The publish method sends a value from the specified
         # publisher.
         brew1.publish('pub','rub')
+
 except (KeyboardInterrupt, SystemExit) as e:
     # Calling stop on a brew disconnects it and waits for its
     # associated thread to finish.
