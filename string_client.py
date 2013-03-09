@@ -47,7 +47,6 @@ try:
 
 	pos_in = stdscr.getyx()[0] + 2
 	pos["y"] = pos_in + 2
-	stdscr.addstr(pos["y"], 0, "outgoing: ", curses.A_BOLD)
 	stdscr.addstr(pos_in, 0, "new msg: ".encode(code), curses.A_BOLD)
 	stdscr.refresh()
 
