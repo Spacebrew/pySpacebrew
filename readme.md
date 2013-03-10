@@ -105,6 +105,13 @@ The `publish` method enables you to publish messages via one of the publication 
 brew.publish("publish feed name","data")
 ```
 
+###Common Error Messages
+The following error message means that the app was not able to connect to the Spacebrew server to which it was pointed. Make sure that the app is set-up to connect to the appropriate server.  
+  
+```
+ERROR:root:ERROR: [Errno 8] nodename nor servname provided, or not known
+```
+
 Example Apps
 =============
 

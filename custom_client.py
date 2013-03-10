@@ -4,6 +4,7 @@ import time
 import locale
 import curses
 import random
+import sys
 from spacebrewInterface.spacebrew import Spacebrew
 
 # set the encoding to use for the terminal string
@@ -21,8 +22,17 @@ pos_state = 18
 local_state = 0
 remote_state = 0
 
+# get app name and server from query string
+name = "pyDice Example"
+server = "sandbox.spacebrew.cc"
+for cur_ele in sys.argv:
+	if "name" in cur_ele: 
+		name = cur_ele[5:]
+	if "server" in cur_ele: 
+		server = cur_ele[6:]
+
 # configure the spacebrew client
-brew = Spacebrew("pyDice Example", server="sandbox.spacebrew.cc")
+brew = Spacebrew(name, server=server)
 brew.addPublisher("roll of the dice", "dice")
 brew.addSubscriber("what did you roll", "dice")
 
@@ -46,6 +56,7 @@ try:
 	# create and load info message at the top of the terminal window
 	info_msg = "This is the pySpacebrew library custom data type example. It rolls the dice every time the enter or return\n" 
 	info_msg += "key is pressed (value between 0 and 6), and displays the latest dice roll value it has received.\n"  
+	info_msg += "Connected to Spacebrew as: " + name + "\n"
 	info_msg += "IMPORTANT: don't shrink the Terminal window as it may cause app to crash (bug with curses lib)."  
 	stdscr.addstr(0, 0, info_msg.encode(code))
 	stdscr.refresh()

@@ -3,6 +3,7 @@
 import time
 import locale
 import curses
+import sys
 from spacebrewInterface.spacebrew import Spacebrew
 
 # set the encoding to use for the terminal string
@@ -15,8 +16,17 @@ stdscr.keypad(1)
 curses.noecho()			# turn off echo
 curses.curs_set(0)		# turn off cursor
 
+# get app name and server from query string
+name = "pyRange Example"
+server = "sandbox.spacebrew.cc"
+for cur_ele in sys.argv:
+	if "name" in cur_ele: 
+		name = cur_ele[5:]
+	if "server" in cur_ele: 
+		server = cur_ele[6:]
+
 # configure the spacebrew client
-brew = Spacebrew("pyRange Example", server="sandbox.spacebrew.cc")
+brew = Spacebrew(name, server=server)
 brew.addPublisher("slider", "range")
 brew.addSubscriber("graph", "range")
 
@@ -56,8 +66,9 @@ try:
 	brew.start()
 
 	# set app information message
-	info_msg =  "This is the pySpacebrew library range example. This app sends out a range value, between 0 and 1023. The value increases and\n"
-	info_msg += "decreases in response to '+'/'=' and `-`/'_' key presses. App also displays a range value received from Spacebrew.\n"  
+	info_msg =  "This is the pySpacebrew library range example. This app sends out a range value, between 0 and 1023. The value \n"
+	info_msg += "increases and decreases in response to '+'/'=' and `-`/'_' key presses. App also displays a range value received\n"  
+	info_msg += "from Spacebrew. Connected as: " + name + "\n"
 	info_msg += "IMPORTANT: don't shrink the Terminal window as it may cause app to crash (bug with curses lib)."  
 	stdscr.addstr(0, 0, info_msg.encode(code))
 	stdscr.refresh()
