@@ -117,17 +117,29 @@ Example Apps
 
 Here is a list of the core examples that are included in this repo. These examples were designed to help you get started building apps that connect to other applications, objects and spaces via Spacebrew. Please note that all of these apps run in the terminal and use python's standard curse library to handle the UI.
 
+To run any of these scripts just navigate to the pySpacebrew folder on the Terminal (or other console app) and then run the command below. Please note that you can specify the app's name and server when launching the app by using the optional arguments `name` and `server` as shown below. 
+
+Launch script without optional arguments:
+```
+python string_client.py
+```
+
+Launch script with optional arguments:
+```
+python string_client.py name=pyString server=sandbox.spacebrew.cc
+```
+
 ###Boolean Client
-App that sends out a boolean message every time the enter or return key is pressed, and displays the latest boolean value it has received.
+App that sends out a boolean message every time the enter or return key is pressed, and displays the latest boolean value it has received. File name: boolean_client.py
 
 ###String Client
-App that functions like a chat program. It can send messages up 60 char long and it displays the first 60 chars of incoming messages.
+App that functions like a chat program. It can send messages up 60 char long and it displays the first 60 chars of incoming messages. File name: string_client.py
 
 ###Range Client
-App that sends out a range value (0 - 1023). The value increases and decreased in response to `+` and `-` keys. App also displays a range value received from Spacebrew.
+App that sends out a range value (0 - 1023). The value increases and decreased in response to `+` and `-` keys. App also displays a range value received from Spacebrew. File name: range_client.py
   
 ###Custom Client (Virtual Dice App)
-App that publishes and subscribes to a custom data type called dice. It rolls a virtual dice every time the enter or return key is pressed (generates a random number between 1 and 6). It also displays the latest remote dice roll value received.
+App that publishes and subscribes to a custom data type called dice. It rolls a virtual dice every time the enter or return key is pressed (generates a random number between 1 and 6). It also displays the latest remote dice roll value received. File name: custom_client.py
 
   
 License  
