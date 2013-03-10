@@ -3,7 +3,7 @@ import threading
 import json
 import logging
 
-class SpaceBrew(object):
+class Spacebrew(object):
 
 	# Define any runtime errors we'll need
 	class ConfigurationError(Exception):
@@ -28,7 +28,7 @@ class SpaceBrew(object):
 
 	class Subscriber(Slot):
 		def __init__(self, name, brewType, default = None):
-			super(SpaceBrew.Subscriber,self).__init__(name,brewType,default)
+			super(Spacebrew.Subscriber,self).__init__(name,brewType,default)
 			self.callbacks=[]
 		def subscribe(self, target):
 			self.callbacks.append(target)
@@ -50,13 +50,13 @@ class SpaceBrew(object):
 
 	def addPublisher(self, name, brewType="string", default=None):
 		if self.connected:
-			raise ConfigurationError(self,"Can not add a new publisher to a running SpaceBrew instance (yet).")
+			raise ConfigurationError(self,"Can not add a new publisher to a running Spacebrew instance (yet).")
 		else:
 			self.publishers[name]=self.Publisher(name, brewType, default)
 	
 	def addSubscriber(self, name, brewType="string", default=None):
 		if self.connected:
-			raise ConfigurationError(self,"Can not add a new subscriber to a running SpaceBrew instance (yet).")
+			raise ConfigurationError(self,"Can not add a new subscriber to a running Spacebrew instance (yet).")
 		else:
 			self.subscribers[name]=self.Subscriber(name, brewType, default)
 
@@ -128,7 +128,7 @@ class SpaceBrew(object):
 
 if __name__ == "__main__":
 	print """
-This is the SpaceBrew module. 
+This is the Spacebrew module. 
 See spacebrew_ex.py for usage examples.
 """
 	

@@ -1,16 +1,16 @@
 #!/usr/bin/python
 import time
 
-from spacebrewInterface.spacebrew import SpaceBrew
+from spacebrewInterface.spacebrew import Spacebrew
 
 # Construct a brew by passing in its name and the server you
 # want to connect to.
-brew1 = SpaceBrew("first brew",server="localhost")
+brew1 = Spacebrew("first brew",server="localhost")
 # This brew will publish a string called "pub".
 brew1.addPublisher("pub")
 
 # Construct a second brew, connecting to the same server.
-brew2 = SpaceBrew("second brew",server="localhost")
+brew2 = Spacebrew("second brew",server="localhost")
 # This brew will subscribe to a string called "sub".
 brew2.addSubscriber("sub")
 

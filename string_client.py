@@ -3,7 +3,7 @@
 import time
 import locale
 import curses
-from spacebrewInterface.spacebrew import SpaceBrew
+from spacebrewInterface.spacebrew import Spacebrew
 
 # set the encoding to use for the terminal string
 locale.setlocale(locale.LC_ALL, '')
@@ -16,9 +16,9 @@ curses.noecho()			# turn off echo
 curses.curs_set(0)		# turn off cursor
 
 # configure the spacebrew client
-brew = SpaceBrew("pyString Example", server="sandbox.spacebrew.cc")
-brew.addPublisher("send msg", "string")
-brew.addSubscriber("get_msg", "string")
+brew = Spacebrew("pyString Example", server="sandbox.spacebrew.cc")
+brew.addPublisher("chat outgoing", "string")
+brew.addSubscriber("chat incoming", "string")
 
 def handleString(value):
 	global pos, code, stdscr
@@ -27,7 +27,7 @@ def handleString(value):
 	stdscr.refresh()
 	pos["y"] += 1
 
-brew.subscribe("get_msg", handleString)
+brew.subscribe("chat incoming", handleString)
 
 # set-up a variables to hold coordinates
 pos = { "x":0, "y":0 }
@@ -39,8 +39,9 @@ pos_con = pos_msg + pos_max + 5
 try:
 	brew.start()
 
-	info_msg = "This is the pySpacebrew library string example. It functions like a chat program. You can\n" 
-	info_msg += "send messages up 60 char long. Only the first 60 chars of incoming messages will be displayed."  
+	info_msg = "This is the pySpacebrew library string example. It functions like a chat program. It can\n"
+	info_msg += "send messages up 60 char long and it displays the first 60 chars of incoming messages.\n"  
+	info_msg += "IMPORTANT: don't shrink the Terminal window as it may cause app to crash (bug with curses lib)."  
 
 	stdscr.addstr(pos["y"], pos["x"], info_msg.encode(code))
 	stdscr.refresh()
@@ -57,7 +58,7 @@ try:
 		c = stdscr.getch()
 
 		if (c == 10 or c == 13) and len(cur_line) > 0: 
-			brew.publish('send msg',cur_line)
+			brew.publish('chat outgoing',cur_line)
 			stdscr.addstr(pos_in, pos_con, " cur_line sent      ".encode(code), curses.A_STANDOUT)
 			stdscr.addstr(pos["y"], 0, "outgoing: ".encode(code), curses.A_BOLD)
 			stdscr.addstr(pos["y"], pos_msg, cur_line.encode(code))

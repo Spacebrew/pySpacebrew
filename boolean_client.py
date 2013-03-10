@@ -3,7 +3,7 @@
 import time
 import locale
 import curses
-from spacebrewInterface.spacebrew import SpaceBrew
+from spacebrewInterface.spacebrew import Spacebrew
 
 # set the encoding to use for the terminal string
 locale.setlocale(locale.LC_ALL, '')
@@ -16,43 +16,47 @@ curses.noecho()			# turn off echo
 curses.curs_set(0)		# turn off cursor
 
 # set-up a variables to hold coordinates
-pos = { "x":0, "y":0 }
 pos_state = 15
 local_state = False
 remote_state = False
 
 # configure the spacebrew client
-brew = SpaceBrew("pyBoolean Example", server="sandbox.spacebrew.cc")
+brew = Spacebrew("pyBoolean Example", server="sandbox.spacebrew.cc")
 brew.addPublisher("local state", "boolean")
 brew.addSubscriber("remote state", "boolean")
 
 def handleBoolean(value):
-	global pos, code, stdscr
+	global code, stdscr
 	stdscr.addstr(pos_remote, pos_state, (str(value) + "  ").encode(code))
 	stdscr.refresh()
 
 brew.subscribe("remote state", handleBoolean)
 
 try:
+	# start-up spacebrew
 	brew.start()
 
+	# create and load info message at the top of the terminal window
 	info_msg = "This is the pySpacebrew library boolean example. It sends out a boolean message every time\n" 
-	info_msg += "the enter or return key is pressed, and it also displays receives a remote boolean value."  
-
-	stdscr.addstr(pos["y"], pos["x"], info_msg.encode(code))
+	info_msg += "the enter or return key is pressed and displays the latest boolean value it has received.\n"  
+	info_msg += "IMPORTANT: don't shrink the Terminal window as it may cause app to crash (bug with curses lib)."  
+	stdscr.addstr(0, 0, info_msg.encode(code))
 	stdscr.refresh()
 
+	# update the location for the remote and local dice state 
 	pos_local = stdscr.getyx()[0] + 2
-	pos_remote = pos_local + 1
+	pos_remote = pos_local + 2
+
+	# display the label for the remote and local boolean states
 	stdscr.addstr(pos_local, 0, "local state: ".encode(code), curses.A_BOLD)
-	stdscr.addstr(pos_local, pos_state, (str(local_state) + "  ").encode(code))
 	stdscr.addstr(pos_remote, 0, "remote state: ".encode(code), curses.A_BOLD)
+
+	# display the starting state for remote and local boolean states
+	stdscr.addstr(pos_local, pos_state, (str(local_state) + "  ").encode(code))
 	stdscr.addstr(pos_remote, pos_state, (str(remote_state) + "  ").encode(code))
 	stdscr.refresh()
 
-	column_str = stdscr.getyx()[1]
-	cur_line = ""
-
+	# listen for keypresses and handle input
 	while 1:
 		c = stdscr.getch()
 
