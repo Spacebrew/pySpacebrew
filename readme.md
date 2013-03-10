@@ -17,7 +17,7 @@ Spacebrew is an open, dynamically re-routable software toolkit for choreographin
   
 [Learn more about Spacebrew here.](http://docs.spacebrew.cc/)  
   
-Using Library  
+Using Library
 ==============   
   
 ###Before you Get Started: Install Dependencies   
@@ -105,7 +105,7 @@ The `publish` method enables you to publish messages via one of the publication 
 brew.publish("publish feed name","data")
 ```
 
-Examples Apps
+Example Apps
 =============
 
 Here is a list of the core examples that are included in this repo. These examples were designed to help you get started building apps that connect to other applications, objects and spaces via Spacebrew. Please note that all of these apps run in the terminal and use python's standard curse library to handle the UI.
