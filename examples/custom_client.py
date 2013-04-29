@@ -5,7 +5,7 @@ import locale
 import curses
 import random
 import sys
-from spacebrewInterface.spacebrew import Spacebrew
+from pySpacebrew.spacebrew import Spacebrew
 
 # set the encoding to use for the terminal string
 locale.setlocale(locale.LC_ALL, '')
@@ -25,14 +25,15 @@ remote_state = 0
 # get app name and server from query string
 name = "pyDice Example"
 server = "sandbox.spacebrew.cc"
+
 for cur_ele in sys.argv:
 	if "name" in cur_ele: 
 		name = cur_ele[5:]
 	if "server" in cur_ele: 
-		server = cur_ele[6:]
+		server = cur_ele[7:]
 
 # configure the spacebrew client
-brew = Spacebrew(name, server=server)
+brew = Spacebrew(name=name, server=server)
 brew.addPublisher("roll of the dice", "dice")
 brew.addSubscriber("what did you roll", "dice")
 

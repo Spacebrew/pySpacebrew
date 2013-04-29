@@ -3,13 +3,16 @@ pySpacebrew - Spacebrew Python Library and Core Examples
   
 This repo contains the Spacebrew Library for Python along with documentation and example apps. Below is a brief overview about Spacbrew, followed by a short tutorial on how to use this library.  
   
-Current Version: 1.0.1  
-Latest Update: March 9, 2013   
+Current Version: 1.0.2  
+Latest Update: April 28, 2013   
 Developed By: contributed by Adam Mayer, maintained by Julio Terra (LAB at Rockwell Group)   
   
 Jump to:  
 * [Using the pySpacebrew Library](#using-library)  
 * [pySpacebrew Example Appss](#example-apps)  
+
+Updates:
+* Clients will automatically attempt to reconnect to server if the connection is lost
   
 About Spacebrew  
 ===============  
@@ -103,6 +106,14 @@ The `publish` method enables you to publish messages via one of the publication 
     
 ```
 brew.publish("publish feed name","data")
+```
+
+###8. Close connection on exit
+When building python apps it is always a best practice to close the spacebrew connection on exit. 
+
+```
+finally:
+	brew.stop()
 ```
 
 ###Common Error Messages

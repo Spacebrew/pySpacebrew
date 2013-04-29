@@ -4,7 +4,7 @@ import time
 import locale
 import curses
 import sys
-from spacebrewInterface.spacebrew import Spacebrew
+from pySpacebrew.spacebrew import Spacebrew
 
 # set the encoding to use for the terminal string
 locale.setlocale(locale.LC_ALL, '')
@@ -19,11 +19,12 @@ curses.curs_set(0)		# turn off cursor
 # get app name and server from query string
 name = "pyString Example"
 server = "sandbox.spacebrew.cc"
+
 for cur_ele in sys.argv:
 	if "name" in cur_ele: 
 		name = cur_ele[5:]
 	if "server" in cur_ele: 
-		server = cur_ele[6:]
+		server = cur_ele[7:]
 
 # configure the spacebrew client
 brew = Spacebrew(name, server=server)
