@@ -43,7 +43,6 @@ remote_state = 0
 
 # method that updates the range "bars" and value on the display
 def displayRange(value, source_line):
-	remote_state = value
 	stdscr.addstr(source_line, pos_int, "     ".encode(code))
 	stdscr.addstr(source_line, pos_int, str(value).encode(code))
 	stdscr.addstr(source_line, pos_state, "".encode(code))
@@ -57,7 +56,7 @@ def displayRange(value, source_line):
 # function that handles the incoming spacebrew range messages
 def handleRange(value):
 	global code, stdscr
-	remote_state = value
+	remote_state = int(value)
 	displayRange(remote_state, col_remote)
 
 # registering range handler method with appropriate subscription feed
