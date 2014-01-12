@@ -76,7 +76,7 @@ class Spacebrew(object):
 	def on_open(self,ws):
 		logging.info("Opening brew.")
 		ws.send(json.dumps(self.makeConfig()))
- 		self.connected = true
+ 		self.connected = True
 
 	def on_message(self,ws,message):
 		msg = json.loads(message)['message']
