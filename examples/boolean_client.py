@@ -75,7 +75,7 @@ try:
 
 		if (c == 10 or c == 13): 
 			local_state = not local_state
-			brew.publish('local state', local_state)
+			brew.publish('local state', str(local_state).lower())
 			stdscr.addstr(pos_local, pos_state, (str(local_state) + "  ").encode(code))
 
 		stdscr.refresh()
