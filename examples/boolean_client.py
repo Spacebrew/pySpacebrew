@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 import time
 import locale
@@ -26,10 +26,10 @@ name = "pyBoolean Example"
 server = "sandbox.spacebrew.cc"
 
 for cur_ele in sys.argv:
-	if "name" in cur_ele: 
-		name = cur_ele[5:]
-	if "server" in cur_ele: 
-		server = cur_ele[7:]
+    if "name" in cur_ele:
+        name = cur_ele[5:]
+    if "server" in cur_ele:
+        server = cur_ele[7:]
 
 
 # configure the spacebrew client
@@ -37,53 +37,57 @@ brew = Spacebrew(name=name, server=server)
 brew.addPublisher("local state", "boolean")
 brew.addSubscriber("remote state", "boolean")
 
+
 def handleBoolean(value):
-	global code, stdscr
-	stdscr.addstr(pos_remote, pos_state, (str(value) + "  ").encode(code))
-	stdscr.refresh()
+    global code, stdscr
+    stdscr.addstr(pos_remote, pos_state, (str(value) + "  ").encode(code))
+    stdscr.refresh()
+
 
 brew.subscribe("remote state", handleBoolean)
 
 try:
-	# start-up spacebrew
-	brew.start()
+    # start-up spacebrew
+    brew.start()
 
-	# create and load info message at the top of the terminal window
-	info_msg = "This is the pySpacebrew library boolean example. It sends out a boolean message every time\n" 
-	info_msg += "the enter or return key is pressed and displays the latest boolean value it has received.\n"  
-	info_msg += "Connected to Spacebrew as: " + name + "\n"
-	info_msg += "IMPORTANT: don't shrink the Terminal window as it may cause app to crash (bug with curses lib)."  
-	stdscr.addstr(0, 0, info_msg.encode(code))
-	stdscr.refresh()
+    # create and load info message at the top of the terminal window
+    info_msg = "This is the pySpacebrew library boolean example. It sends out a boolean message every time\n"
+    info_msg += "the enter or return key is pressed and displays the latest boolean value it has received.\n"
+    info_msg += "Connected to Spacebrew as: " + name + "\n"
+    info_msg += "IMPORTANT: don't shrink the Terminal window as it may cause app to crash (bug with curses lib)."
+    stdscr.addstr(0, 0, info_msg.encode(code))
+    stdscr.refresh()
 
-	# update the location for the remote and local dice state 
-	pos_local = stdscr.getyx()[0] + 2
-	pos_remote = pos_local + 2
+    # update the location for the remote and local dice state
+    pos_local = stdscr.getyx()[0] + 2
+    pos_remote = pos_local + 2
 
-	# display the label for the remote and local boolean states
-	stdscr.addstr(pos_local, 0, "local state: ".encode(code), curses.A_BOLD)
-	stdscr.addstr(pos_remote, 0, "remote state: ".encode(code), curses.A_BOLD)
+    # display the label for the remote and local boolean states
+    stdscr.addstr(pos_local, 0, "local state: ".encode(code), curses.A_BOLD)
+    stdscr.addstr(pos_remote, 0, "remote state: ".encode(code), curses.A_BOLD)
 
-	# display the starting state for remote and local boolean states
-	stdscr.addstr(pos_local, pos_state, (str(local_state) + "  ").encode(code))
-	stdscr.addstr(pos_remote, pos_state, (str(remote_state) + "  ").encode(code))
-	stdscr.refresh()
+    # display the starting state for remote and local boolean states
+    stdscr.addstr(pos_local, pos_state, (str(local_state) + "  ").encode(code))
+    stdscr.addstr(pos_remote, pos_state,
+                  (str(remote_state) + "  ").encode(code))
+    stdscr.refresh()
 
-	# listen for keypresses and handle input
-	while 1:
-		c = stdscr.getch()
+    # listen for keypresses and handle input
+    while 1:
+        c = stdscr.getch()
 
-		if (c == 10 or c == 13): 
-			local_state = not local_state
-			brew.publish('local state', local_state)
-			stdscr.addstr(pos_local, pos_state, (str(local_state) + "  ").encode(code))
+        if (c == 10 or c == 13):
+            local_state = not local_state
+            brew.publish('local state', local_state)
+            stdscr.addstr(pos_local, pos_state,
+                          (str(local_state) + "  ").encode(code))
 
-		stdscr.refresh()
+        stdscr.refresh()
 
 # closing out the app and returning terminal to old settings
 finally:
-	brew.stop()
-	curses.nocbreak()
-	stdscr.keypad(0)
-	curses.echo()
-	curses.endwin()
+    brew.stop()
+    curses.nocbreak()
+    stdscr.keypad(0)
+    curses.echo()
+    curses.endwin()
